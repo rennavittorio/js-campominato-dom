@@ -35,6 +35,20 @@
     background-color: #00e066;
 }
 
-.cell.active.bomb {
+.cell.bomb {
     background-color: #c41228;
+}
+
+.pointer, .win-condition {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.t-red {
+    color: #c41228;
+}
+
+.t-green {
+    color: #00e066;
 }

@@ -1,7 +1,10 @@
-//recupero elementi da DOM per input user
+//recupero elementi da DOM per input user + variabili per functions
 let playBtnElement = document.querySelector('.play-btn');
 let userLevelElement = document.getElementById('levelSelection');
-
+let gameFieldElement;
+let cellsNum = 0;
+let bombList = [];
+let pointsCount = 0;
 
 playBtnElement.addEventListener('click', function(){
     //recupero input utente
@@ -13,16 +16,18 @@ playBtnElement.addEventListener('click', function(){
     
     } else {
         let sideLenght = setSideLength(userLevelInput);
-        let cellsNum = sideLenght * sideLenght;
+        cellsNum = sideLenght * sideLenght;
         
         let bombPercent = setBombPercent(userLevelInput, cellsNum);
 
         generateGameField(userLevelInput, cellsNum);
 
-        let bombList = randomUniqueIndexesList(cellsNum, bombPercent);
-        console.log(bombList);
+        bombList = randomUniqueIndexesList(cellsNum, bombPercent);
+        console.log('bomblist', bombList);
+        bombList.sort((a,b)=>a-b);
+        console.log('bomblist sorted', bombList);
         
-        let gameFieldElement = document.querySelector('.game-grid');
+        gameFieldElement = document.querySelector('.game-grid');
         console.log(gameFieldElement);
 
         gameFieldElement.addEventListener('click', onClick)
@@ -41,7 +46,7 @@ playBtnElement.addEventListener('click', function(){
 function randomUniqueIndexesList(cellsRange, levelOutputRange) {
 
     let arr = [] //creo un array con tutti i num da 1 a range
-    for (let i = 0; i < cellsRange; i++) { //parto da zero perché l'output è una lista di indici
+    for (let i = 1; i <= cellsRange; i++) { //parto da zero perché l'output è una lista di indici
         arr.push(i)
     }
     console.log('initial arr', arr)
@@ -66,7 +71,12 @@ function generateGameField (userInput, cellsNum){
     let sideLenght = setSideLength(userInput);
 
     let gridElement = document.querySelector('.game-grid') //recupero elemento griglia dal dom
-    gridElement.innerHTML = ``; //resetta campo ad ogni click
+    let pointerFieldElement = document.querySelector('.pointer');
+    let winConElement = document.querySelector('.win-condition');
+    //resetta campo ad ogni click
+    gridElement.innerHTML = ``; 
+    pointerFieldElement.innerHTML = ``;
+    winConElement.innerHTML = ``;
     
     //creo la griglia dinamica
     for (let i = 0; i < cellsNum; i++){
@@ -81,6 +91,7 @@ function generateGameField (userInput, cellsNum){
     
         gridElement.innerHTML += cell; //lo inserisco nel DOM
     }
+
 
 }
 
@@ -114,9 +125,46 @@ function setBombPercent (userInput, cellsNum){
 
 
 //funzione click casella
-function onClick(event){
-    // console.log(event.target);
+function onClick(){
     let cell = event.target;
-    cell.classList.add('active');
+    let cellName = parseInt(cell.innerHTML);
+    let pointerFieldElement = document.querySelector('.pointer');
+
+    let winCondition = cellsNum - bombList.length;
+    console.log('my win con is', winCondition);
+    
+    let winConElement = document.querySelector('.win-condition');
+
+    if (bombList.includes(cellName)){ //GAME OVER
+        cell.classList.add('bomb')
+        console.log('boom', cellName);
+        gameFieldElement.removeEventListener('click', onClick);
+
+        pointerFieldElement.classList.add('t-red');
+        winConElement.classList.remove('d-none');
+        winConElement.classList.add('d-block', 't-red');
+        winConElement.innerHTML = 'YOU LOSE';
+
+    } else if (pointsCount < winCondition) {
+        pointsCount++;
+        console.log('points', pointsCount);
+
+        cell.classList.add('active');
+
+        pointerFieldElement.classList.remove('d-none');
+        pointerFieldElement.classList.add('d-block');
+        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`; 
+
+
+    } else if (pointsCount === winCondition) {
+        pointerFieldElement.classList.add('t-green');
+        winConElement.classList.remove('d-none');
+        winConElement.classList.add('d-block', 't-green');
+        winConElement.innerHTML = 'YOU WIN';
+
+        gameFieldElement.removeEventListener('click', onClick);
+        
+    }
+
 
 }
