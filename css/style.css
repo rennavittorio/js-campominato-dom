@@ -1,0 +1,40 @@
+.body {
+    /* width: 100%;
+    height: 100vh; */
+    background-color: #f3f3f3;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+    align-items: center;
+}
+
+.game-grid {
+    max-width: 500px;
+    max-height: 500px;
+}
+
+
+.game-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.game-grid > * {
+    border: 1px solid #d3d3d3;
+    aspect-ratio: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 75%;
+}
+
+.cell.active {
+    background-color: #00e066;
+}
+
+.cell.active.bomb {
+    background-color: #c41228;
+}
