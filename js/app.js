@@ -1,15 +1,11 @@
 //recupero elementi da DOM per input user
 let playBtnElement = document.querySelector('.play-btn');
-// let userColsElement = document.getElementById('colSelection');
-// let userRowsElement = document.getElementById('rowSelection');
 let userLevelElement = document.getElementById('levelSelection');
 
 
 
 playBtnElement.addEventListener('click', function(){
     //recupero input utente
-    // let userColsInput = parseInt(userColsElement.value);
-    // let userRowsInput = parseInt(userRowsElement.value);
     let userLevelInput = userLevelElement.value;
     console.log('level', userLevelInput);
     
