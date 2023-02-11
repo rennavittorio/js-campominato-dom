@@ -3,14 +3,15 @@ let playBtnElement = document.querySelector('.play-btn');
 let userLevelElement = document.getElementById('levelSelection');
 let pointerFieldElement = document.querySelector('.pointer');
 let winConElement = document.querySelector('.win-condition');
-let mouseHammerElement = document.querySelector('.fa-hammer');
+let mouseHammerElement = document.querySelector('.hammer__icon');
 
 let gameFieldElement;
 let cellsNum = 0;
 let bombList = [];
 let pointsCount = 0;
 
-window.addEventListener('mouseover', mouseMovement);
+//creato per far muovere l'icon con cursore
+window.addEventListener('pointermove', mouseMovement);
 
 
 //start game ad ogni click
@@ -197,10 +198,11 @@ function onClick(){
 
 //function mouseover for hammer icon
 function mouseMovement (event){
-    console.log(event);
-    mouseHammerElement.style.top = `${event.clientY}`;
-    mouseHammerElement.style.top = `${event.clientX}`;
-    // hammerIcon.style.top = `${event.clientY}`;
-    // hammerIcon.style.left = `${event.clientX}`;
-    // console.log(event);
+    let x = event.clientX;
+    let y = event.clientY;
+    
+    // mouseHammerElement.setAttribute('display', 'block')
+    mouseHammerElement.style.top = `${y}px`;
+    mouseHammerElement.style.left = `${x - 30}px`;
+
 }
