@@ -1,20 +1,30 @@
 //recupero elementi da DOM per input user + variabili per functions
 let playBtnElement = document.querySelector('.play-btn');
 let userLevelElement = document.getElementById('levelSelection');
+let pointerFieldElement = document.querySelector('.pointer');
+let winConElement = document.querySelector('.win-condition');
+let mouseHammerElement = document.querySelector('.fa-hammer');
+
 let gameFieldElement;
 let cellsNum = 0;
 let bombList = [];
 let pointsCount = 0;
 
+window.addEventListener('mouseover', mouseMovement);
+
+
+//start game ad ogni click
 playBtnElement.addEventListener('click', function(){
     //recupero input utente
     let userLevelInput = userLevelElement.value;
     console.log('level', userLevelInput);
     
+    //controllo validità input
     if (userLevelInput === 'default'){
         alert('please insert all data')
     
     } else {
+        //genero campo di gioco
         let sideLenght = setSideLength(userLevelInput);
         cellsNum = sideLenght * sideLenght;
         
@@ -27,10 +37,11 @@ playBtnElement.addEventListener('click', function(){
         bombList.sort((a,b)=>a-b);
         console.log('bomblist sorted', bombList);
         
+        //recupero campo di gioco e aggiungo eventi al click
         gameFieldElement = document.querySelector('.game-grid');
         console.log(gameFieldElement);
 
-        gameFieldElement.addEventListener('click', onClick)
+        gameFieldElement.addEventListener('click', onClick);
 
     }
 
@@ -40,7 +51,9 @@ playBtnElement.addEventListener('click', function(){
 
 
 
-//FUNZIONI
+/********************************************************************************
+********************************* FUNZIONI *************************************
+********************************************************************************/
 //genero un numero random di indici rispetto a range num caselle e livello scelto
 //serve per prendere randomicamente le caselle a cui assegnare la BOMBA
 function randomUniqueIndexesList(cellsRange, levelOutputRange) {
@@ -63,36 +76,6 @@ function randomUniqueIndexesList(cellsRange, levelOutputRange) {
     }
     
     return result;
-}
-
-
-function generateGameField (userInput, cellsNum){     
-
-    let sideLenght = setSideLength(userInput);
-
-    let gridElement = document.querySelector('.game-grid') //recupero elemento griglia dal dom
-    let pointerFieldElement = document.querySelector('.pointer');
-    let winConElement = document.querySelector('.win-condition');
-    //resetta campo ad ogni click
-    gridElement.innerHTML = ``; 
-    pointerFieldElement.innerHTML = ``;
-    winConElement.innerHTML = ``;
-    
-    //creo la griglia dinamica
-    for (let i = 0; i < cellsNum; i++){
-        let num = i + 1;
-    
-        //creo l'elemento
-        const cell = `
-                        <div class="cell cell-${num}" style="width: calc(100% / ${sideLenght})">
-                            ${num}
-                        </div>
-                    ` 
-    
-        gridElement.innerHTML += cell; //lo inserisco nel DOM
-    }
-
-
 }
 
 //set sideLength
@@ -124,16 +107,52 @@ function setBombPercent (userInput, cellsNum){
 }
 
 
+function generateGameField (userInput, cellsNum){     
+
+    let sideLenght = setSideLength(userInput);
+
+    let gridElement = document.querySelector('.game-grid') //recupero elemento griglia dal dom
+    let pointerFieldElement = document.querySelector('.pointer');
+    let winConElement = document.querySelector('.win-condition');
+
+    resetGameField(gridElement, pointerFieldElement, winConElement);
+    
+    //creo la griglia dinamica
+    for (let i = 0; i < cellsNum; i++){
+        let num = i + 1;
+    
+        //creo l'elemento
+        const cell = `
+                        <div class="cell cell-${num}" style="width: calc(100% / ${sideLenght})">
+                            ${num}
+                        </div>
+                    ` 
+    
+        gridElement.innerHTML += cell; //lo inserisco nel DOM
+    }
+
+
+}
+
+
+//function reset game field
+function resetGameField (grid, pointer, winCon){
+    grid.innerHTML = ``; 
+    pointer.innerHTML = ``;
+    winCon.innerHTML = ``;
+    pointsCount = 0;
+    pointer.classList.remove('t-red', 't-green');
+    winCon.classList.remove('d-block', 't-red');
+}
+
+
 //funzione click casella
 function onClick(){
     let cell = event.target;
     let cellName = parseInt(cell.innerHTML);
-    let pointerFieldElement = document.querySelector('.pointer');
 
     let winCondition = cellsNum - bombList.length;
-    console.log('my win con is', winCondition);
-    
-    let winConElement = document.querySelector('.win-condition');
+    // console.log('my win con is', winCondition);
 
     if (bombList.includes(cellName)){ //GAME OVER
         cell.classList.add('bomb')
@@ -141,30 +160,47 @@ function onClick(){
         gameFieldElement.removeEventListener('click', onClick);
 
         pointerFieldElement.classList.add('t-red');
+
         winConElement.classList.remove('d-none');
         winConElement.classList.add('d-block', 't-red');
         winConElement.innerHTML = 'YOU LOSE';
 
-    } else if (pointsCount < winCondition) {
+    } else if (pointsCount === winCondition - 1) { //perchè deve leggermi il count prima dell'ultimo click
         pointsCount++;
-        console.log('points', pointsCount);
-
+        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`;
         cell.classList.add('active');
 
-        pointerFieldElement.classList.remove('d-none');
-        pointerFieldElement.classList.add('d-block');
-        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`; 
-
-
-    } else if (pointsCount === winCondition) {
         pointerFieldElement.classList.add('t-green');
+
         winConElement.classList.remove('d-none');
         winConElement.classList.add('d-block', 't-green');
         winConElement.innerHTML = 'YOU WIN';
 
         gameFieldElement.removeEventListener('click', onClick);
         
+    } else if (pointsCount < winCondition) {
+        pointsCount++;
+        // console.log('points', pointsCount);
+
+        cell.classList.add('active');
+
+        pointerFieldElement.classList.remove('d-none');
+        pointerFieldElement.classList.add('d-block');
+        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`; 
     }
 
 
+
+
+}
+
+
+//function mouseover for hammer icon
+function mouseMovement (event){
+    console.log(event);
+    mouseHammerElement.style.top = `${event.clientY}`;
+    mouseHammerElement.style.top = `${event.clientX}`;
+    // hammerIcon.style.top = `${event.clientY}`;
+    // hammerIcon.style.left = `${event.clientX}`;
+    // console.log(event);
 }
