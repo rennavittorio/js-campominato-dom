@@ -198,7 +198,7 @@ function onClick(){
             cellId+sideLenght-1, cellId+sideLenght
         ];
 
-    } else if (cellId > sideLenght && (cellId - 1) % sideLenght === 0){ //lato sx
+    } else if (cellId > sideLenght && cellId % sideLenght === 1){ //lato sx
         ctrlNearBomb = [cellId-sideLenght, cellId-sideLenght+1,
             cellId+1,
             cellId+sideLenght, cellId+sideLenght+1
