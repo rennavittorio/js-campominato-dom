@@ -3,15 +3,17 @@ let playBtnElement = document.querySelector('.play-btn');
 let userLevelElement = document.getElementById('levelSelection');
 let pointerFieldElement = document.querySelector('.pointer');
 let winConElement = document.querySelector('.win-condition');
-let mouseHammerElement = document.querySelector('.hammer__icon');
+// let mouseHammerElement = document.querySelector('.hammer__icon');
 
 let gameFieldElement;
+let sideLenght = 0;
 let cellsNum = 0;
 let bombList = [];
+let bombListName = []
 let pointsCount = 0;
 
 //creato per far muovere l'icon con cursore
-window.addEventListener('pointermove', mouseMovement);
+// window.addEventListener('pointermove', mouseMovement);
 
 
 //start game ad ogni click
@@ -26,21 +28,27 @@ playBtnElement.addEventListener('click', function(){
     
     } else {
         //genero campo di gioco
-        let sideLenght = setSideLength(userLevelInput);
+        sideLenght = setSideLength(userLevelInput);
         cellsNum = sideLenght * sideLenght;
         
         let bombPercent = setBombPercent(userLevelInput, cellsNum);
 
         generateGameField(userLevelInput, cellsNum);
 
+        //BOMB///////////////////////////////////////////////////
         bombList = randomUniqueIndexesList(cellsNum, bombPercent);
-        console.log('bomblist', bombList);
+        // console.log('bomblist', bombList);
         bombList.sort((a,b)=>a-b);
-        console.log('bomblist sorted', bombList);
+        console.log('bombList sorted', bombList);
+
+        for (let i = 0; i < bombList.length; i++){
+            bombListName[i] = 'cell-' + bombList[i];
+        }
+        console.log('bombListName sorted', bombListName);
+        //END BOMB//////////////////////////////////////////////
         
         //recupero campo di gioco e aggiungo eventi al click
         gameFieldElement = document.querySelector('.game-grid');
-        console.log(gameFieldElement);
 
         gameFieldElement.addEventListener('click', onClick);
 
@@ -63,7 +71,7 @@ function randomUniqueIndexesList(cellsRange, levelOutputRange) {
     for (let i = 1; i <= cellsRange; i++) { //parto da zero perché l'output è una lista di indici
         arr.push(i)
     }
-    console.log('initial arr', arr)
+    // console.log('initial arr', arr)
 
     let result = [];
     
@@ -125,7 +133,7 @@ function generateGameField (userInput, cellsNum){
         //creo l'elemento
         const cell = `
                         <div class="cell cell-${num}" style="width: calc(100% / ${sideLenght})">
-                            ${num}
+                            +
                         </div>
                     ` 
     
@@ -150,12 +158,74 @@ function resetGameField (grid, pointer, winCon){
 //funzione click casella
 function onClick(){
     let cell = event.target;
-    let cellName = parseInt(cell.innerHTML);
+    let cellName = cell.classList[1];
+    let cellId = parseInt(cellName.replace('cell-', ''));
 
-    let winCondition = cellsNum - bombList.length;
+    //MATRIX PER CONTROLLARE PRESENZA BOMBE////////////////////////////////////
+    let ctrlNearBomb = [];
+
+    if (cellId === 1){ //angolo alto sx
+        ctrlNearBomb = [
+            cellId+1,
+            cellId+sideLenght, cellId+sideLenght+1
+        ];
+
+    } else if (cellId === sideLenght){ //angolo alto dx
+        ctrlNearBomb = [
+            cellId-1,
+            cellId+sideLenght-1, cellId+sideLenght
+        ];
+
+    } else if (cellId === (cellsNum - sideLenght)){ //angolo basso sx
+        ctrlNearBomb = [cellId-sideLenght, cellId-sideLenght+1,
+            cellId+1
+        ];
+
+    } else if (cellId === cellsNum) { //angolo basso dx
+        ctrlNearBomb = [cellId-sideLenght-1, cellId-sideLenght,
+            cellId-1
+        ];
+
+    } else if (cellId > 1 && cellId < sideLenght){ //fascia alta
+        ctrlNearBomb = [
+            cellId-1, cellId+1,
+            cellId+sideLenght-1, cellId+sideLenght, cellId+sideLenght+1
+        ];
+
+    } else if (cellId > sideLenght && cellId % sideLenght === 0){ //lato dx
+        ctrlNearBomb = [cellId-sideLenght-1, cellId-sideLenght,
+            cellId-1,
+            cellId+sideLenght-1, cellId+sideLenght
+        ];
+
+    } else if (cellId > sideLenght && (cellId - 1) % sideLenght === 0){ //lato sx
+        ctrlNearBomb = [cellId-sideLenght, cellId-sideLenght+1,
+            cellId+1,
+            cellId+sideLenght, cellId+sideLenght+1
+        ];
+
+    } else if (cellId > cellsNum - sideLenght && cellId < cellsNum){ //fascia bassa
+        ctrlNearBomb = [cellId-sideLenght-1, cellId-sideLenght, cellId-sideLenght+1,
+            cellId-1, cellId+1
+        ];
+
+    } else { //centrali
+        ctrlNearBomb = [cellId-sideLenght-1, cellId-sideLenght, cellId-sideLenght+1,
+            cellId-1, cellId+1,
+            cellId+sideLenght-1, cellId+sideLenght, cellId+sideLenght+1
+        ];
+
+    }
+
+    console.log(ctrlNearBomb);
+    let ctrlNearBombCount = 0;
+    //MATRIX PER CONTROLLARE PRESENZA BOMBE////////////////////////////////////
+
+
+    let winCondition = cellsNum - bombListName.length;
     // console.log('my win con is', winCondition);
 
-    if (bombList.includes(cellName)){ //GAME OVER
+    if (bombListName.includes(cellName)){ //GAME OVER
         cell.classList.add('bomb')
         console.log('boom', cellName);
         gameFieldElement.removeEventListener('click', onClick);
@@ -181,13 +251,21 @@ function onClick(){
         
     } else if (pointsCount < winCondition) {
         pointsCount++;
-        // console.log('points', pointsCount);
 
         cell.classList.add('active');
 
         pointerFieldElement.classList.remove('d-none');
         pointerFieldElement.classList.add('d-block');
-        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`; 
+        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`;
+
+        for (let i = 0; i < ctrlNearBomb.length; i++){
+
+            if (bombList.includes(ctrlNearBomb[i])){
+                ctrlNearBombCount++;
+            }
+
+            cell.innerHTML = `${ctrlNearBombCount}`;
+        }
     }
 
 
@@ -197,12 +275,13 @@ function onClick(){
 
 
 //function mouseover for hammer icon
-function mouseMovement (event){
-    let x = event.clientX;
-    let y = event.clientY;
+// function mouseMovement (event){
+//     console.log(event);
+//     let x = event.clientX;
+//     let y = event.clientY;
     
-    // mouseHammerElement.setAttribute('display', 'block')
-    mouseHammerElement.style.top = `${y}px`;
-    mouseHammerElement.style.left = `${x - 30}px`;
+//     // mouseHammerElement.setAttribute('display', 'block')
+//     mouseHammerElement.style.top = `${y}px`;
+//     mouseHammerElement.style.left = `${x - 30}px`;
 
-}
+// }

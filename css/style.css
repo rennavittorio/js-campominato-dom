@@ -24,13 +24,22 @@
     /* cursor: url('../hammer-solid.svg'), default; */
 }
 
-.game-grid > * {
+.game-grid > *:not(span) {
     border: 1px solid #d3d3d3;
+    /* color: transparent; */
+    position: relative;
     aspect-ratio: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 75%;
+}
+
+.game-grid > *span {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #333;
 }
 
 .cell.active {
