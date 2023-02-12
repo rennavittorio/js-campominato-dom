@@ -176,7 +176,7 @@ function onClick(){
             cellId+sideLenght-1, cellId+sideLenght
         ];
 
-    } else if (cellId === (cellsNum - sideLenght)){ //angolo basso sx
+    } else if (cellId === (cellsNum - sideLenght + 1)){ //angolo basso sx
         ctrlNearBomb = [cellId-sideLenght, cellId-sideLenght+1,
             cellId+1
         ];
@@ -228,7 +228,7 @@ function onClick(){
     if (bombListName.includes(cellName)){ //GAME OVER
         cell.classList.add('bomb')
         console.log('boom', cellName);
-        gameFieldElement.removeEventListener('click', onClick);
+        // gameFieldElement.removeEventListener('click', onClick);
 
         pointerFieldElement.classList.add('t-red');
 
@@ -236,18 +236,18 @@ function onClick(){
         winConElement.classList.add('d-block', 't-red');
         winConElement.innerHTML = 'YOU LOSE';
 
-    } else if (pointsCount === winCondition - 1) { //perchè deve leggermi il count prima dell'ultimo click
-        pointsCount++;
-        pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`;
-        cell.classList.add('active');
+    // } else if (pointsCount === winCondition - 1) { //perchè deve leggermi il count prima dell'ultimo click
+    //     pointsCount++;
+    //     pointerFieldElement.innerHTML = `your current point is: ${pointsCount}`;
+    //     cell.classList.add('active');
 
-        pointerFieldElement.classList.add('t-green');
+    //     pointerFieldElement.classList.add('t-green');
 
-        winConElement.classList.remove('d-none');
-        winConElement.classList.add('d-block', 't-green');
-        winConElement.innerHTML = 'YOU WIN';
+    //     winConElement.classList.remove('d-none');
+    //     winConElement.classList.add('d-block', 't-green');
+    //     winConElement.innerHTML = 'YOU WIN';
 
-        gameFieldElement.removeEventListener('click', onClick);
+    //     gameFieldElement.removeEventListener('click', onClick);
         
     } else if (pointsCount < winCondition) {
         pointsCount++;
